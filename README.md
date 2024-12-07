@@ -1,6 +1,15 @@
 # GKOM_Environment_Rendering
 
+## Uwagi
 
+1) Używać float zamiast double
+2) Fajna książka: https://learnopengl.com/
+
+# Ruch
+
+W/S - przód/tył
+A/D - lewo/prawo
+Spacja (+shift) - góra/dół
 
 ## Linux
 
