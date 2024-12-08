@@ -182,11 +182,11 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) != GLFW_PRESS) {
-        dTheta = angleSpeed * deltaTime;
+        dTheta = -angleSpeed * deltaTime;
     }
 
     else if (glfwGetKey(window, GLFW_KEY_LEFT) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        dTheta = -angleSpeed * deltaTime;
+        dTheta = angleSpeed * deltaTime;
     }
 
     else {
