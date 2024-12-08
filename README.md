@@ -11,6 +11,8 @@ W/S - przód/tył
 A/D - lewo/prawo
 Spacja (+shift) - góra/dół
 
+Strzałki - obrót
+
 ## Linux
 
 $ cd gkom_environment_rendering
