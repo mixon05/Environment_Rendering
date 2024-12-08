@@ -172,12 +172,12 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_DOWN) != GLFW_PRESS) {
-        camPhi += angleSpeed * deltaTime;
+        camPhi -= angleSpeed * deltaTime;
         camPhi = std::min(90.0f, std::max(-90.0f, camPhi));
     }
 
     else if (glfwGetKey(window, GLFW_KEY_UP) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        camPhi -= angleSpeed * deltaTime;
+        camPhi += angleSpeed * deltaTime;
         camPhi = std::min(90.0f, std::max(-90.0f, camPhi));
     }
 
