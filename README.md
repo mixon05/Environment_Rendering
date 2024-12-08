@@ -13,6 +13,13 @@ Spacja (+shift) - góra/dół
 
 Strzałki - obrót
 
+
+## TODO
+
+1) Odpalić na Windows
+2) Zrobić żeby main.cpp był ładniejszy (można wyszczególnić moduły itp)
+3) Pomyśleć co z teksturami
+
 ## Linux
 
 $ cd gkom_environment_rendering

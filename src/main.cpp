@@ -7,28 +7,21 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-
-std::string loadShaderSource(const std::string& filePath) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        std::cerr << "Nie można otworzyć pliku shadera: " << filePath << std::endl;
-        return "";
-    }
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
+#include "stb_image.h"
+#include "envmap/envmap.h"
 
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
-float camX = 0.0f;
-float camY = 0.0f;
-float camZ = -3.0f;
 
-float minMotionSpeed = 1.0f;
-float maxMotionSpeed = 10.0f; // Maksymalna prędkość ruchu
-float acceleration = 0.5f; // Wartość przyspieszenia ruchu
+float dX = 0.0f;
+float dY = 0.0f;
+float dZ = 0.0f;
+
+
+float minMotionSpeed = 4.0f;
+float maxMotionSpeed = 20.0f; // Maksymalna prędkość ruchu
+float acceleration = 1.0f; // Wartość przyspieszenia ruchu
 
 
 // Początkowa prędkość
@@ -37,7 +30,8 @@ float ySpeed = minMotionSpeed;
 float zSpeed = minMotionSpeed; 
 
 float camPhi = 0.0;
-float camTheta = 0.0;
+float prevCamPhi = 0.0;
+float dTheta = 0.0;
 
 float angleSpeed = 30.0f;
 
@@ -69,12 +63,17 @@ bool pressedKeys[6] = {
 };
 
 
+glm::mat4 view = glm::mat4(1.0f);
+glm::mat4 prevView = glm::mat4(1.0f);
+
 void processInput(GLFWwindow *window)
 {
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
         glfwSetWindowShouldClose(window, true);
         return;
     }
+
 
     float currentTime = glfwGetTime();  // Aktualny czas
     deltaTime = currentTime - lastTime;  // Obliczenie różnicy czasowej między klatkami
@@ -86,7 +85,7 @@ void processInput(GLFWwindow *window)
         else
             xSpeed = minMotionSpeed;
         if (xSpeed > maxMotionSpeed) xSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        camX += xSpeed * deltaTime;
+        dX = xSpeed * deltaTime;
 
         pressedKeys[0] = true;
         pressedKeys[1] = false;
@@ -97,14 +96,14 @@ void processInput(GLFWwindow *window)
         else
             xSpeed = minMotionSpeed;
         if (xSpeed > maxMotionSpeed) xSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        camX -= xSpeed * deltaTime;
+        dX = - xSpeed * deltaTime;
 
         pressedKeys[0] = false;
         pressedKeys[1] = true;
     }
     else{
         xSpeed = minMotionSpeed;
-        
+        dX = 0.0f;
         pressedKeys[0] = false;
         pressedKeys[1] = false;
     }
@@ -117,7 +116,7 @@ void processInput(GLFWwindow *window)
         else
             ySpeed = minMotionSpeed;
         if (ySpeed > maxMotionSpeed) ySpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        camY -= ySpeed * deltaTime;
+        dY = - ySpeed * deltaTime;
 
         pressedKeys[2] = true;
         pressedKeys[3] = false;
@@ -129,14 +128,14 @@ void processInput(GLFWwindow *window)
         else
             ySpeed = minMotionSpeed;
         if (ySpeed > maxMotionSpeed) ySpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        camY += ySpeed * deltaTime;
+        dY = ySpeed * deltaTime;
 
         pressedKeys[2] = true;
         pressedKeys[3] = true;
     }
     else{
         ySpeed = minMotionSpeed;
-        
+        dY = 0.0f;
         pressedKeys[2] = false;
         pressedKeys[3] = false;
     }
@@ -149,7 +148,7 @@ void processInput(GLFWwindow *window)
         else
             zSpeed = minMotionSpeed;
         if (zSpeed > maxMotionSpeed) zSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        camZ += zSpeed * deltaTime;
+        dZ = zSpeed * deltaTime;
 
         pressedKeys[4] = true;
         pressedKeys[5] = false;
@@ -160,14 +159,14 @@ void processInput(GLFWwindow *window)
         else
             zSpeed = minMotionSpeed;        
         if (zSpeed > maxMotionSpeed) zSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        camZ -= zSpeed * deltaTime;
+        dZ = -zSpeed * deltaTime;
 
         pressedKeys[4] = false;
         pressedKeys[5] = true;
     }
     else{
         zSpeed = minMotionSpeed;
-
+        dZ = 0.0f;
         pressedKeys[4] = false;
         pressedKeys[5] = false;
     }
@@ -183,20 +182,44 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) != GLFW_PRESS) {
-        camTheta += angleSpeed * deltaTime;
-        camTheta = std::min(90.0f, std::max(-90.0f, camTheta));
+        dTheta = angleSpeed * deltaTime;
     }
 
     else if (glfwGetKey(window, GLFW_KEY_LEFT) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        camTheta -= angleSpeed * deltaTime;
-        camTheta = std::min(90.0f, std::max(-90.0f, camTheta));
+        dTheta = -angleSpeed * deltaTime;
     }
+
+    else {
+        dTheta = 0.0f;
+    }
+
+
+    view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(dX, dY, dZ));
+    view = glm::rotate(view, glm::radians(dTheta), glm::vec3(0, 1, 0));
+    view = glm::rotate(view, glm::radians(camPhi-prevCamPhi), glm::vec3(1, 0, 0));
+    view = view * prevView;
+    prevView = view;
+    prevCamPhi = camPhi;
+
 }
 
+// Deklaracja/definicja funkcji loadShaderSource
+std::string loadShaderSource(const std::string& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Nie można otworzyć pliku: " << filePath << std::endl;
+        return "";
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
 
 int main() {
     GLFWwindow* window;
-
+    prevView = glm::translate(prevView, glm::vec3(0.0f, 0.0f, -3.0f));
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -212,6 +235,11 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glewInit();
+    EnvMap envMap("../src/map.bmp", 20.0f, 0.5f, 0.5f);
+
+    int vertices_size = 3*envMap.xSize*envMap.zSize;
+    int indices_size = 6*(envMap.xSize-1)*(envMap.zSize-1);
+
 
     // Załaduj shadery
     std::string vertexShaderSourceStr = loadShaderSource("../src/shaders/vertex_shader.vs");
@@ -258,26 +286,8 @@ int main() {
     GLuint viewLoc = glGetUniformLocation(program, "view");
     GLuint projectionLoc = glGetUniformLocation(program, "projection");
 
-    // Definicja wierzchołków i indeksów
-    float vertices[] = {
-        -0.5f, -0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
 
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
 
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,
-        1, 2, 3,
-        4, 5, 6,
-        5, 6, 7,
-    };
 
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -286,10 +296,10 @@ int main() {
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices_size * sizeof(float), envMap.vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof(int), envMap.indices, GL_STATIC_DRAW);
 
     // Atrybuty wierzchołków
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -310,12 +320,8 @@ int main() {
 
         // create transformations
         glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
-        view  = glm::translate(view, glm::vec3(camX, camY, camZ));
-        view = glm::rotate(view, glm::radians(camPhi), glm::vec3(1, 0, 0));
-        view = glm::rotate(view, glm::radians(camTheta), glm::vec3(0, 1, 0));
 
         projection = glm::perspective(glm::radians(45.0f), ((float)SCR_WIDTH / (float)SCR_HEIGHT), 0.1f, 100.0f);
 
@@ -325,7 +331,7 @@ int main() {
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 
-        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, vertices_size * sizeof(float), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
