@@ -36,8 +36,10 @@ float xSpeed = minMotionSpeed;
 float ySpeed = minMotionSpeed;
 float zSpeed = minMotionSpeed; 
 
-float xAngle = 0.0;
-float yAngle = 0.0;
+float camPhi = 0.0;
+float camTheta = 0.0;
+
+float angleSpeed = 30.0f;
 
 float lastTime = 0.0;  // Czas w ostatniej klatce
 float deltaTime = 0.0; // Różnica czasowa między klatkami
@@ -160,7 +162,6 @@ void processInput(GLFWwindow *window)
         if (zSpeed > maxMotionSpeed) zSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
         camZ -= zSpeed * deltaTime;
 
-
         pressedKeys[4] = false;
         pressedKeys[5] = true;
     }
@@ -171,7 +172,25 @@ void processInput(GLFWwindow *window)
         pressedKeys[5] = false;
     }
 
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_DOWN) != GLFW_PRESS) {
+        camPhi += angleSpeed * deltaTime;
+        camPhi = std::min(90.0f, std::max(-90.0f, camPhi));
+    }
 
+    else if (glfwGetKey(window, GLFW_KEY_UP) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        camPhi -= angleSpeed * deltaTime;
+        camPhi = std::min(90.0f, std::max(-90.0f, camPhi));
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) != GLFW_PRESS) {
+        camTheta += angleSpeed * deltaTime;
+        camTheta = std::min(90.0f, std::max(-90.0f, camTheta));
+    }
+
+    else if (glfwGetKey(window, GLFW_KEY_LEFT) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        camTheta -= angleSpeed * deltaTime;
+        camTheta = std::min(90.0f, std::max(-90.0f, camTheta));
+    }
 }
 
 
@@ -295,6 +314,9 @@ int main() {
         glm::mat4 projection = glm::mat4(1.0f);
 
         view  = glm::translate(view, glm::vec3(camX, camY, camZ));
+        view = glm::rotate(view, glm::radians(camPhi), glm::vec3(1, 0, 0));
+        view = glm::rotate(view, glm::radians(camTheta), glm::vec3(0, 1, 0));
+
         projection = glm::perspective(glm::radians(45.0f), ((float)SCR_WIDTH / (float)SCR_HEIGHT), 0.1f, 100.0f);
 
         // Przesyłanie macierzy do shaderów
