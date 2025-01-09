@@ -33,3 +33,16 @@ $ ./gkom_enviroment_rendering
 ## Windows
 
 Trzeba sprawdzić czy działa.
+
+## TODO
+
+tekstury w zależności od wysokości
+plik konfiguracyjny
+naprawa kamery
+backface culling
+
+oswietlenie - 1 punktowe źr światła
+
+woda - góry otoczone jeziorem - poziom wody w pliku konfiguracyjnym
+(można użyc normal mapy)
+(czas uniform - zmiana wsp tekstury)

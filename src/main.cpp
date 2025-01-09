@@ -13,30 +13,24 @@
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
-
-float dX = 0.0f;
-float dY = 0.0f;
-float dZ = 0.0f;
-
-
-float minMotionSpeed = 4.0f;
-float maxMotionSpeed = 20.0f; // Maksymalna prędkość ruchu
-float acceleration = 1.0f; // Wartość przyspieszenia ruchu
-
+float minMotionSpeed = 0.1f;
+float maxMotionSpeed = 1.0f; // Maksymalna prędkość ruchu
+float acceleration = 0.01f; // Wartość przyspieszenia ruchu
 
 // Początkowa prędkość
 float xSpeed = minMotionSpeed;
 float ySpeed = minMotionSpeed;
 float zSpeed = minMotionSpeed; 
 
-float camPhi = 0.0;
-float prevCamPhi = 0.0;
-float dTheta = 0.0;
-
-float angleSpeed = 30.0f;
+float angleSpeed = 0.35f;
+float phi_eps = 0.05f;
 
 float lastTime = 0.0;  // Czas w ostatniej klatce
 float deltaTime = 0.0; // Różnica czasowa między klatkami
+
+glm::vec3 cameraPosition = glm::vec3(0, 0, 20);
+glm::vec3 cameraDirection = glm::vec3(0, 0, -1);
+glm::vec3 cameraUp = glm::vec3(0, 1, 0);
 
 // Dzięki temu obrazek rozciąga się wraz z okienkiem
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -63,17 +57,15 @@ bool pressedKeys[6] = {
 };
 
 
-glm::mat4 view = glm::mat4(1.0f);
-glm::mat4 prevView = glm::mat4(1.0f);
 
 void processInput(GLFWwindow *window)
 {
+    glm::vec3 cameraRight = glm::cross(cameraDirection, cameraUp);
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
         glfwSetWindowShouldClose(window, true);
         return;
     }
-
 
     float currentTime = glfwGetTime();  // Aktualny czas
     deltaTime = currentTime - lastTime;  // Obliczenie różnicy czasowej między klatkami
@@ -85,7 +77,8 @@ void processInput(GLFWwindow *window)
         else
             xSpeed = minMotionSpeed;
         if (xSpeed > maxMotionSpeed) xSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        dX = xSpeed * deltaTime;
+
+        cameraPosition -= cameraRight * xSpeed;
 
         pressedKeys[0] = true;
         pressedKeys[1] = false;
@@ -96,14 +89,14 @@ void processInput(GLFWwindow *window)
         else
             xSpeed = minMotionSpeed;
         if (xSpeed > maxMotionSpeed) xSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        dX = - xSpeed * deltaTime;
+
+        cameraPosition += cameraRight * xSpeed;
 
         pressedKeys[0] = false;
         pressedKeys[1] = true;
     }
     else{
         xSpeed = minMotionSpeed;
-        dX = 0.0f;
         pressedKeys[0] = false;
         pressedKeys[1] = false;
     }
@@ -116,7 +109,9 @@ void processInput(GLFWwindow *window)
         else
             ySpeed = minMotionSpeed;
         if (ySpeed > maxMotionSpeed) ySpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        dY = - ySpeed * deltaTime;
+
+        cameraPosition += cameraUp * zSpeed;
+
 
         pressedKeys[2] = true;
         pressedKeys[3] = false;
@@ -128,14 +123,14 @@ void processInput(GLFWwindow *window)
         else
             ySpeed = minMotionSpeed;
         if (ySpeed > maxMotionSpeed) ySpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        dY = ySpeed * deltaTime;
+        
+        cameraPosition -= cameraUp * zSpeed;
 
         pressedKeys[2] = true;
         pressedKeys[3] = true;
     }
     else{
         ySpeed = minMotionSpeed;
-        dY = 0.0f;
         pressedKeys[2] = false;
         pressedKeys[3] = false;
     }
@@ -148,7 +143,8 @@ void processInput(GLFWwindow *window)
         else
             zSpeed = minMotionSpeed;
         if (zSpeed > maxMotionSpeed) zSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        dZ = zSpeed * deltaTime;
+
+        cameraPosition += cameraDirection * zSpeed;
 
         pressedKeys[4] = true;
         pressedKeys[5] = false;
@@ -159,49 +155,68 @@ void processInput(GLFWwindow *window)
         else
             zSpeed = minMotionSpeed;        
         if (zSpeed > maxMotionSpeed) zSpeed = maxMotionSpeed;  // Ograniczenie maksymalnej prędkości
-        dZ = -zSpeed * deltaTime;
+
+        cameraPosition -= cameraDirection * zSpeed;
 
         pressedKeys[4] = false;
         pressedKeys[5] = true;
     }
     else{
         zSpeed = minMotionSpeed;
-        dZ = 0.0f;
         pressedKeys[4] = false;
         pressedKeys[5] = false;
     }
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_DOWN) != GLFW_PRESS) {
-        camPhi -= angleSpeed * deltaTime;
-        camPhi = std::min(90.0f, std::max(-90.0f, camPhi));
+        float r = 1.0f;
+        float phi = atan2(cameraDirection.z, cameraDirection.x);
+        float theta = acos(cameraDirection.y);
+
+        theta -= angleSpeed * deltaTime;
+        theta = glm::max(theta, 0.0f + phi_eps);
+
+        cameraDirection.x = r * sin(theta) * cos(phi);
+        cameraDirection.z = r * sin(theta) * sin(phi);
+        cameraDirection.y = r * cos(theta);
     }
 
     else if (glfwGetKey(window, GLFW_KEY_UP) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        camPhi += angleSpeed * deltaTime;
-        camPhi = std::min(90.0f, std::max(-90.0f, camPhi));
+        float r = 1.0f;
+        float phi = atan2(cameraDirection.z, cameraDirection.x);
+        float theta = acos(cameraDirection.y);
+
+        theta += angleSpeed * deltaTime;
+        theta = glm::min(theta, glm::pi<float>() - phi_eps);
+
+        cameraDirection.x = r * sin(theta) * cos(phi);
+        cameraDirection.z = r * sin(theta) * sin(phi);
+        cameraDirection.y = r * cos(theta);
+
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) != GLFW_PRESS) {
-        dTheta = -angleSpeed * deltaTime;
+        float r = 1.0f;
+        float phi = atan2(cameraDirection.z, cameraDirection.x);
+        float theta = acos(cameraDirection.y);
+
+        phi -= angleSpeed * deltaTime;
+
+        cameraDirection.x = r * sin(theta) * cos(phi);
+        cameraDirection.z = r * sin(theta) * sin(phi);
+        cameraDirection.y = r * cos(theta);
     }
 
     else if (glfwGetKey(window, GLFW_KEY_LEFT) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        dTheta = angleSpeed * deltaTime;
+        float r = 1.0f;
+        float phi = atan2(cameraDirection.z, cameraDirection.x);
+        float theta = acos(cameraDirection.y);
+
+        phi += angleSpeed * deltaTime;
+
+        cameraDirection.x = r * sin(theta) * cos(phi);
+        cameraDirection.z = r * sin(theta) * sin(phi);
+        cameraDirection.y = r * cos(theta);
     }
-
-    else {
-        dTheta = 0.0f;
-    }
-
-
-    view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(dX, dY, dZ));
-    view = glm::rotate(view, glm::radians(dTheta), glm::vec3(0, 1, 0));
-    view = glm::rotate(view, glm::radians(camPhi-prevCamPhi), glm::vec3(1, 0, 0));
-    view = view * prevView;
-    prevView = view;
-    prevCamPhi = camPhi;
-
 }
 
 // Deklaracja/definicja funkcji loadShaderSource
@@ -219,7 +234,6 @@ std::string loadShaderSource(const std::string& filePath) {
 
 int main() {
     GLFWwindow* window;
-    prevView = glm::translate(prevView, glm::vec3(0.0f, 0.0f, -3.0f));
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -321,7 +335,7 @@ int main() {
         // create transformations
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
-
+        glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition+cameraDirection, cameraUp);
 
         projection = glm::perspective(glm::radians(45.0f), ((float)SCR_WIDTH / (float)SCR_HEIGHT), 0.1f, 100.0f);
 
