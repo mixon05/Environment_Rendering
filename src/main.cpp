@@ -10,16 +10,53 @@
 #include "stb_image.h"
 #include "envmap/envmap.h"
 #include "control/control.h"
+#include "nlohmann/json.hpp"
+#include <variant>
+#include <string>
+#include <map>
+#include <iostream>
+#include <fstream>
 
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+using JsonValue = std::variant<std::string, int, float>;
+using JsonMap = std::map<std::string, JsonValue>;
+
+JsonMap parseJsonToMap(const std::string& filePath) {
+    // Wczytaj JSON-a z pliku
+    std::ifstream file(filePath);
+    if (!file) {
+        throw std::runtime_error("Nie można otworzyć pliku JSON: " + filePath);
+    }
+
+    nlohmann::json json;
+    file >> json;
+
+    // Przekształć JSON-a na mapę
+    JsonMap result;
+    for (auto& [key, value] : json.items()) {
+        if (value.is_string()) {
+            result[key] = value.get<std::string>();
+        } else if (value.is_number_integer()) {
+            result[key] = value.get<int>();
+        } else if (value.is_number_float()) {
+            result[key] = value.get<float>();
+        } else {
+            std::cerr << "Pominięto nieobsługiwany typ dla klucza: " << key << std::endl;
+        }
+    }
+    return result;
+}
+
+
+JsonMap config = parseJsonToMap("../config.json");
+
+const unsigned int SCR_WIDTH = std::get<int>(config.at("SRC_WIDTH"));
+const unsigned int SCR_HEIGHT = std::get<int>(config.at("SRC_HEIGHT"));
 
 // Dzięki temu obrazek rozciąga się wraz z okienkiem
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
-
 
 // Deklaracja/definicja funkcji loadShaderSource
 std::string loadShaderSource(const std::string& filePath) {
@@ -51,7 +88,10 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glewInit();
-    EnvMap envMap("../src/map.bmp", 20.0f, 0.5f, 0.5f);
+    EnvMap envMap("../" + std::get<std::string>(config.at("bitmapPath")),
+                    std::get<float>(config.at("yScale")),
+                    std::get<float>(config.at("xStride")),
+                    std::get<float>(config.at("zStride")));
 
     int vertices_size = 3*envMap.xSize*envMap.zSize;
     int indices_size = 6*(envMap.xSize-1)*(envMap.zSize-1);
@@ -96,14 +136,10 @@ int main() {
     glLinkProgram(program);
     glUseProgram(program);
 
-
     // Ustalenie identyfikatorów uniformów
     GLuint modelLoc = glGetUniformLocation(program, "model");
     GLuint viewLoc = glGetUniformLocation(program, "view");
     GLuint projectionLoc = glGetUniformLocation(program, "projection");
-
-
-
 
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -126,7 +162,11 @@ int main() {
     
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    Control controller(0.1f, 1.0f, 0.1f, 0.6f, 0.001f);
+    Control controller(std::get<float>(config.at("minMotionSpeed")),
+                        std::get<float>(config.at("maxMotionSpeed")),
+                        std::get<float>(config.at("acceleration")),
+                        std::get<float>(config.at("angleSpeed")),
+                        std::get<float>(config.at("phiEps")));
 
     // Główna pętla renderowania
     while (!glfwWindowShouldClose(window)) {
@@ -139,7 +179,9 @@ int main() {
         // create transformations
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
-        glm::mat4 view = glm::lookAt(controller.getCameraPosition(), controller.getCameraPosition()+controller.getCameraDirection(), controller.getCameraUp());
+        glm::mat4 view = glm::lookAt(controller.getCameraPosition(),
+                                    controller.getCameraPosition()+controller.getCameraDirection(),
+                                    controller.getCameraUp());
 
         projection = glm::perspective(glm::radians(45.0f), ((float)SCR_WIDTH / (float)SCR_HEIGHT), 0.1f, 100.0f);
 

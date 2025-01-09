@@ -1,0 +1,17 @@
+{
+    "SRC_WIDTH": 1920,
+    "SRC_HEIGHT": 1080,
+
+    "bitmapPath": "map.bmp",
+    "yScale": 20.0,
+    "xStride": 0.5,
+    "zStride": 0.5,
+
+    "minMotionSpeed": 0.1,
+    "maxMotionSpeed": 1.0, 
+    "acceleration": 0.1,
+    "angleSpeed": 0.6,
+    "phiEps": 0.001
+
+
+}

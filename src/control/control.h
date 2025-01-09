@@ -13,7 +13,7 @@ public:
         float maxMotionSpeed,
         float acceleration,
         float angleSpeed,
-        float phi_eps
+        float phiEps
     );
 
     const glm::vec3& getCameraPosition() const;
@@ -35,7 +35,7 @@ private:
     float ySpeed;
     float zSpeed;
     float angleSpeed;
-    float phi_eps;
+    float phiEps;
 
     float lastTime;
     float deltaTime;

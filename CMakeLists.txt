@@ -3,7 +3,7 @@ cmake_policy(SET CMP0072 NEW) # Preferuj GLVND
 
 project(gkom_enviroment_rendering)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
@@ -21,7 +21,7 @@ add_library(GLAD "src/glad.c")
 
 set(LIBS ${LIBS} STB_IMAGE GLAD glfw OpenGL::GL GLEW)
 
-add_executable(gkom_enviroment_rendering src/main.cpp src/envmap/envmap.cpp src/control/control.cpp)
+add_executable(gkom_enviroment_rendering src/main.cpp src/envmap/envmap.cpp src/control/control.cpp src/nlohmann/json.hpp)
 
 # Poprawione linkowanie
 target_link_libraries(gkom_enviroment_rendering ${LIBS} ${GLFW_LIBRARIES})

@@ -9,12 +9,12 @@ Control::Control(
     float maxMotionSpeed,
     float acceleration,
     float angleSpeed,
-    float phi_eps
+    float phiEps
 ) : minMotionSpeed(minMotionSpeed),
     maxMotionSpeed(maxMotionSpeed),
     acceleration(acceleration),
     angleSpeed(angleSpeed),
-    phi_eps(phi_eps)
+    phiEps(phiEps)
 {
     xSpeed = minMotionSpeed;
     ySpeed = minMotionSpeed;
@@ -157,7 +157,7 @@ void Control::processInput(GLFWwindow *window) {
         float theta = acos(cameraDirection.y);
 
         theta -= angleSpeed * deltaTime;
-        theta = glm::max(theta, 0.0f + phi_eps);
+        theta = glm::max(theta, 0.0f + phiEps);
 
         cameraDirection.x = r * sin(theta) * cos(phi);
         cameraDirection.z = r * sin(theta) * sin(phi);
@@ -170,7 +170,7 @@ void Control::processInput(GLFWwindow *window) {
         float theta = acos(cameraDirection.y);
 
         theta += angleSpeed * deltaTime;
-        theta = glm::min(theta, glm::pi<float>() - phi_eps);
+        theta = glm::min(theta, glm::pi<float>() - phiEps);
 
         cameraDirection.x = r * sin(theta) * cos(phi);
         cameraDirection.z = r * sin(theta) * sin(phi);
