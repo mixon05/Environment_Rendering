@@ -188,7 +188,7 @@ int main() {
                                     controller.getCameraPosition()+controller.getCameraDirection(),
                                     controller.getCameraUp());
 
-        projection = glm::perspective(glm::radians(45.0f), ((float)SCR_WIDTH / (float)SCR_HEIGHT), 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(45.0f), ((float)SCR_WIDTH / (float)SCR_HEIGHT), 0.1f, std::get<float>(config.at("sightRange")));
 
         // Przesyłanie macierzy do shaderów
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
