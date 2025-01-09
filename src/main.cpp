@@ -88,6 +88,11 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glewInit();
+
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+
     EnvMap envMap("../" + std::get<std::string>(config.at("bitmapPath")),
                     std::get<float>(config.at("yScale")),
                     std::get<float>(config.at("xStride")),
