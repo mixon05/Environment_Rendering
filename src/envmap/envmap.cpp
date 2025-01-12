@@ -1,60 +1,104 @@
 #include "envmap.h"
 #include "stb_image.h"
+#include <stdexcept>
 #include <iostream>
 
-
 EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
-    : vertices(nullptr), indices(nullptr), xSize(0), zSize(0) {
-    this->yScale = yScale;
-    this->xStride = xStride;
-    this->zStride = zStride;
-    int channels;
-    int xSize;
-    int zSize;
-    unsigned char* data = stbi_load(filepath.c_str(), &xSize, &zSize, &channels, 0); // 0 – automatyczne dopasowanie liczby kanałów
-    if(!data){
-        std::cerr << "Błąd podczas wczytywania pliku: " << filepath << std::endl;
-        return;
+    : yScale(yScale), xStride(xStride), zStride(zStride)
+{
+
+    // Wczytanie obrazu heightmapy
+    int width, height, channels;
+    unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &channels, 1);
+
+    if (!data)
+    {
+        throw std::runtime_error("Failed to load heightmap: " + filepath);
     }
-    this->xSize = xSize;
-    this->zSize = zSize;
 
+    xSize = width;
+    zSize = height;
 
-    unsigned int vertices_size = 3*xSize*zSize;
-    this->vertices = new float [vertices_size];
-    for(int i = 0; i < zSize; i++){
-        for(int j = 0; j< xSize; j++){
-            
-            vertices[3 * (i * xSize + j)] = xStride * (j - (xSize - 1) / 2.0);
-            vertices[3 * (i * xSize + j) + 1] = data[(i * xSize + j) * channels] / yScale;
-            vertices[3 * (i * xSize + j) + 2] = zStride * (i - (zSize - 1) / 2.0);
+    // Tworzenie wierzchołków
+    vertices.resize(xSize * zSize);
 
+    // Generowanie pozycji wierzchołków
+    for (int z = 0; z < zSize; z++)
+    {
+        for (int x = 0; x < xSize; x++)
+        {
+            int index = z * xSize + x;
+            float height = static_cast<float>(data[index]) / 255.0f * yScale;
+
+            vertices[index].position = glm::vec3(
+                x * xStride,
+                height,
+                z * zStride);
         }
     }
+
+    // Generowanie indeksów
+    for (int z = 0; z < zSize - 1; z++)
+    {
+        for (int x = 0; x < xSize - 1; x++)
+        {
+            int topLeft = z * xSize + x;
+            int topRight = topLeft + 1;
+            int bottomLeft = (z + 1) * xSize + x;
+            int bottomRight = bottomLeft + 1;
+
+            indices.push_back(topLeft);
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
+
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+            indices.push_back(bottomRight);
+        }
+    }
+
+    // Obliczanie normalnych
+    calculateNormals();
 
     stbi_image_free(data);
-
-    unsigned int indices_size = 3*2*(xSize-1)*(zSize-1);
-    this->indices = new unsigned int [indices_size];
-    for(int i = 0; i < zSize-1; i++) {
-        for(int j = 0; j < xSize-1; j++) {
-
-            indices[6*(i*(xSize-1) + j)] = i*(xSize) + j + 1;
-            indices[6*(i*(xSize-1) + j) + 1] = i*(xSize) + j;
-            indices[6*(i*(xSize-1) + j) + 2] = (i+1)*(xSize) + j + 1;
-            indices[6*(i*(xSize-1) + j) + 3] = (i)*(xSize) + j;
-            indices[6*(i*(xSize-1) + j) + 4] = (i+1)*(xSize) + j;
-            indices[6*(i*(xSize-1) + j) + 5] = (i+1)*(xSize) + j + 1;
-
-
-        }
-    }
-
-
-
 }
 
-EnvMap::~EnvMap() {
-    delete[] this->vertices; // Usuwanie dynamicznej tablicy wierzchołków
-    delete[] this->indices;  // Usuwanie dynamicznej tablicy indeksów
+EnvMap::~EnvMap() {}
+
+float EnvMap::getHeightAt(int x, int z)
+{
+    if (x < 0 || x >= xSize || z < 0 || z >= zSize)
+    {
+        return 0.0f;
+    }
+    return vertices[z * xSize + x].position.y;
+}
+
+glm::vec3 EnvMap::calculateNormalAt(int x, int z)
+{
+    // Używamy metody różnic skończonych do obliczenia normalnej
+    float heightL = getHeightAt(x - 1, z);
+    float heightR = getHeightAt(x + 1, z);
+    float heightD = getHeightAt(x, z - 1);
+    float heightU = getHeightAt(x, z + 1);
+
+    // Obliczanie wektora normalnego
+    glm::vec3 normal(
+        heightL - heightR,
+        2.0f, // Skalowanie składowej Y dla lepszego efektu
+        heightD - heightU);
+
+    return glm::normalize(normal);
+}
+
+void EnvMap::calculateNormals()
+{
+    // Obliczanie normalnych dla każdego wierzchołka
+    for (int z = 0; z < zSize; z++)
+    {
+        for (int x = 0; x < xSize; x++)
+        {
+            vertices[z * xSize + x].normal = calculateNormalAt(x, z);
+        }
+    }
 }

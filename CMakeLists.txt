@@ -21,7 +21,7 @@ add_library(GLAD "src/glad.c")
 
 set(LIBS ${LIBS} STB_IMAGE GLAD glfw OpenGL::GL GLEW)
 
-add_executable(gkom_environment_rendering src/main.cpp src/envmap/envmap.cpp src/control/control.cpp src/nlohmann/json.hpp)
+add_executable(gkom_environment_rendering src/main.cpp src/envmap/envmap.cpp src/control/control.cpp src/nlohmann/json.hpp src/light/light.cpp)
 
 # Poprawione linkowanie
 target_link_libraries(gkom_environment_rendering ${LIBS} ${GLFW_LIBRARIES})

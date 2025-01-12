@@ -1,19 +1,33 @@
 #ifndef ENVMAP_H
 #define ENVMAP_H
 #include <string>
+#include <glm/glm.hpp>
+#include <vector>
+
+struct Vertex
+{
+    glm::vec3 position;
+    glm::vec3 normal;
+};
 
 class EnvMap
 {
 public:
     EnvMap(std::string filepath, float yScale, float xStride, float zStride);
     ~EnvMap();
+
     int xSize;
     int zSize;
     float xStride;
     float zStride;
     float yScale;
-    float* vertices;
-    unsigned int* indices;
-};
 
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+private:
+    void calculateNormals();
+    float getHeightAt(int x, int z);
+    glm::vec3 calculateNormalAt(int x, int z);
+};
 #endif

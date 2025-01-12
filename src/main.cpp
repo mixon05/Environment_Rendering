@@ -10,6 +10,7 @@
 #include "stb_image.h"
 #include "envmap/envmap.h"
 #include "control/control.h"
+#include "light/light.h"
 #include "nlohmann/json.hpp"
 #include <variant>
 #include <string>
@@ -155,6 +156,13 @@ int main()
     glLinkProgram(program);
     glUseProgram(program);
 
+    Light light(
+        glm::vec3(envMap.xSize * envMap.xStride / 2.0f, 40.0f, envMap.zSize * envMap.zStride / 2.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        100.0f);
+
+    GLuint viewPosLoc = glGetUniformLocation(program, "viewPos");
+
     // Ustalenie identyfikatorów uniformów
     GLuint modelLoc = glGetUniformLocation(program, "model");
     GLuint viewLoc = glGetUniformLocation(program, "view");
@@ -167,19 +175,21 @@ int main()
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices_size * sizeof(float), envMap.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, envMap.vertices.size() * sizeof(Vertex), envMap.vertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof(int), envMap.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, envMap.indices.size() * sizeof(unsigned int), envMap.indices.data(), GL_STATIC_DRAW);
 
     // Atrybuty wierzchołków
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 
     // Włączamy Z-buffer
     glEnable(GL_DEPTH_TEST);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     Control controller(std::get<float>(config.at("minMotionSpeed")),
                        std::get<float>(config.at("maxMotionSpeed")),
@@ -210,7 +220,11 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glDrawElements(GL_TRIANGLES, vertices_size * sizeof(float), GL_UNSIGNED_INT, 0);
+        light.setUniforms(program);
+
+        glUniform3fv(viewPosLoc, 1, glm::value_ptr(controller.getCameraPosition()));
+
+        glDrawElements(GL_TRIANGLES, envMap.indices.size(), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
