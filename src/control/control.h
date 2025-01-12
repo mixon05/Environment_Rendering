@@ -1,29 +1,20 @@
 #ifndef CONTROL_H
 #define CONTROL_H
-#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
 
 class Control
 {
-
-public:
-
-    Control(
-        float minMotionSpeed,
-        float maxMotionSpeed,
-        float acceleration,
-        float angleSpeed,
-        float phiEps
-    );
+   public:
+    Control(float minMotionSpeed, float maxMotionSpeed, float acceleration, float angleSpeed, float phiEps);
 
     const glm::vec3& getCameraPosition() const;
     const glm::vec3& getCameraDirection() const;
     const glm::vec3& getCameraUp() const;
-    void processInput(GLFWwindow *window);
+    void processInput(GLFWwindow* window);
 
-private:
-
-
+   private:
     glm::vec3 cameraPosition;
     glm::vec3 cameraDirection;
     glm::vec3 cameraUp;
@@ -41,8 +32,6 @@ private:
     float deltaTime;
 
     bool pressedKeys[6];
-
 };
-
 
 #endif

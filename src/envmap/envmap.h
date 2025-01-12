@@ -1,7 +1,7 @@
 #ifndef ENVMAP_H
 #define ENVMAP_H
-#include <string>
 #include <glm/glm.hpp>
+#include <string>
 #include <vector>
 
 struct Vertex
@@ -12,7 +12,7 @@ struct Vertex
 
 class EnvMap
 {
-public:
+   public:
     EnvMap(std::string filepath, float yScale, float xStride, float zStride);
     ~EnvMap();
 
@@ -25,7 +25,7 @@ public:
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
-private:
+   private:
     void calculateNormals();
     float getHeightAt(int x, int z);
     glm::vec3 calculateNormalAt(int x, int z);

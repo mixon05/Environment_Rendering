@@ -1,12 +1,13 @@
 #include "envmap.h"
-#include "stb_image.h"
-#include <stdexcept>
+
 #include <iostream>
+#include <stdexcept>
+
+#include "stb_image.h"
 
 EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
     : yScale(yScale), xStride(xStride), zStride(zStride)
 {
-
     // Wczytanie obrazu heightmapy
     int width, height, channels;
     unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &channels, 1);
@@ -30,10 +31,7 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
             int index = z * xSize + x;
             float height = static_cast<float>(data[index]) / 255.0f * yScale;
 
-            vertices[index].position = glm::vec3(
-                x * xStride,
-                height,
-                z * zStride);
+            vertices[index].position = glm::vec3(x * xStride, height, z * zStride);
         }
     }
 
@@ -83,10 +81,9 @@ glm::vec3 EnvMap::calculateNormalAt(int x, int z)
     float heightU = getHeightAt(x, z + 1);
 
     // Obliczanie wektora normalnego
-    glm::vec3 normal(
-        heightL - heightR,
-        2.0f, // Skalowanie składowej Y dla lepszego efektu
-        heightD - heightU);
+    glm::vec3 normal(heightL - heightR,
+                     2.0f,  // Skalowanie składowej Y dla lepszego efektu
+                     heightD - heightU);
 
     return glm::normalize(normal);
 }
