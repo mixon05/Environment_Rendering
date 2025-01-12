@@ -106,9 +106,6 @@ int main()
     EnvMap envMap("../" + std::get<std::string>(config.at("bitmapPath")), std::get<float>(config.at("yScale")),
                   std::get<float>(config.at("xStride")), std::get<float>(config.at("zStride")));
 
-    int vertices_size = 3 * envMap.xSize * envMap.zSize;
-    int indices_size = 6 * (envMap.xSize - 1) * (envMap.zSize - 1);
-
     // Załaduj shadery
     std::string vertexShaderSourceStr = loadShaderSource("../src/shaders/vertex_shader.vs");
     std::string fragmentShaderSourceStr = loadShaderSource("../src/shaders/fragment_shader.fs");
