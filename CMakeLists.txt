@@ -33,3 +33,4 @@ add_executable(gkom_environment_rendering
 target_link_libraries(gkom_environment_rendering ${LIBS} ${GLFW_LIBRARIES})
 
 file(COPY ${CMAKE_SOURCE_DIR}/grass_texture.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/rock_texture.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

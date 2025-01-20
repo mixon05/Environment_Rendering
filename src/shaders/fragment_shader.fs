@@ -1,6 +1,7 @@
 #version 330 core
 out vec4 FragColor;
-uniform sampler2D texture1;
+uniform sampler2D grassTexture;
+uniform sampler2D rockTexture;
 
 in vec2 TexCoords;
 in vec3 FragPos;
@@ -39,9 +40,16 @@ void main()
     float distance = length(lightPos - FragPos);
     float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
 
-    vec3 textureColor = texture(texture1, TexCoords).rgb;
+    float height = FragPos.y;
+
+    vec4 grassColor = texture(grassTexture, TexCoords);
+    vec4 rockColor = texture(rockTexture, TexCoords);
+
+    float blendFactor = smoothstep(10.0, 15.0, height);
+
+    vec4 textureColor = mix(grassColor, rockColor, blendFactor);
 
     // Final result
-    vec3 result = (ambient + (diffuse + specular) * attenuation * lightIntensity) * textureColor;
+    vec3 result = (ambient + (diffuse + specular) * attenuation * lightIntensity) * textureColor.rgb;
     FragColor = vec4(result, 1.0);
 }

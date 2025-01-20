@@ -21,6 +21,10 @@ Strzałki - obrót
 
 ## Linux
 
+Instalacja GLM (wymagane do poprawnego funkcjonowania projektu)
+$ sudo apt update
+$ sudo apt install libglm-dev
+
 $ cd gkom_environment_rendering
 $ mkdir build
 $ cd build
@@ -33,10 +37,6 @@ $ ./gkom_environment_rendering
 Trzeba sprawdzić czy działa.
 
 ## TODO
-
-tekstury w zależności od wysokości
-
-oswietlenie - 1 punktowe źr światła
 
 woda - góry otoczone jeziorem - poziom wody w pliku konfiguracyjnym
 (można użyc normal mapy)

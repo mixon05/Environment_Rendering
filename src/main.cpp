@@ -212,12 +212,18 @@ int main()
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
-    unsigned int texture = loadTexture("grass_texture.jpg");
+    unsigned int grassTexture = loadTexture("grass_texture.jpg");
+    unsigned int rockTexture = loadTexture("rock_texture.jpg");
 
     glUseProgram(program);
-    glUniform1i(glGetUniformLocation(program, "texture1"), 0);
+    glUniform1i(glGetUniformLocation(program, "grassTexture"), 0);
+    glUniform1i(glGetUniformLocation(program, "rockTexture"), 1);
+
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, grassTexture);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, rockTexture);
 
 
     // Włączamy Z-buffer
