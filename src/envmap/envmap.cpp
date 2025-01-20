@@ -32,6 +32,10 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
             float height = static_cast<float>(data[index]) / 255.0f * yScale;
 
             vertices[index].position = glm::vec3(x * xStride, height, z * zStride);
+            vertices[index].texCoords = glm::vec2(
+            static_cast<float>(x) / (xSize - 1),
+            static_cast<float>(z) / (zSize - 1)
+        );
         }
     }
 

@@ -10,18 +10,26 @@ set(CMAKE_CXX_EXTENSIONS ON)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
-# Dodaj ścieżkę do nagłówków GLEW
-include_directories(includes)
-include_directories(${GLFW_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(/usr/include)  # W razie potrzeby dopasuj ścieżkę do GLEW
+# Dodaj ścieżkę do nagłówków
+include_directories(${CMAKE_SOURCE_DIR}/includes)      # Ścieżka do includes
+include_directories(${GLFW_INCLUDE_DIRS})               # Ścieżka do GLFW
+include_directories(${CMAKE_SOURCE_DIR}/src)            # Ścieżka do src
+include_directories(/usr/include)                       # Ścieżka do systemowych nagłówków
 
 add_library(STB_IMAGE "src/stb_image.cpp")
 add_library(GLAD "src/glad.c")
 
 set(LIBS ${LIBS} STB_IMAGE GLAD glfw OpenGL::GL GLEW)
 
-add_executable(gkom_environment_rendering src/main.cpp src/envmap/envmap.cpp src/control/control.cpp src/nlohmann/json.hpp src/light/light.cpp)
+add_executable(gkom_environment_rendering
+    src/main.cpp
+    src/envmap/envmap.cpp
+    src/control/control.cpp
+    src/nlohmann/json.hpp
+    src/light/light.cpp
+)
 
 # Poprawione linkowanie
 target_link_libraries(gkom_environment_rendering ${LIBS} ${GLFW_LIBRARIES})
+
+file(COPY ${CMAKE_SOURCE_DIR}/grass_texture.jpg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
