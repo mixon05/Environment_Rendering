@@ -27,6 +27,8 @@
 
     "waterHeightLevel": 10.0,
     "waterTexturePath": "water_texture.jpg",
-    "waterTextureNormalPath": "water_texture_normal.jpg"
-
+    "waterTextureNormalPath": "water_texture_normal.jpg",
+    "waterTextureNormalFactor": 2.0,
+    "waterSpeedU": 0.0,
+    "waterSpeedV": -0.05
 }

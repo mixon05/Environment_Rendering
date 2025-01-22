@@ -228,9 +228,13 @@ int main()
     glUniform1i(glGetUniformLocation(program, "textureTwo"), 2);
     glUniform1i(glGetUniformLocation(program, "waterTexture"), 3);
     glUniform1i(glGetUniformLocation(program, "waterTextureNormal"), 4);
+    glUniform1f(glGetUniformLocation(program, "waterTextureNormalFactor"), std::get<float>(config.at("waterTextureNormalFactor")));
 
     glUniform1f(glGetUniformLocation(program, "textureThresholdZeroOne"), std::get<float>(config.at("textureThresholdZeroOne")));
     glUniform1f(glGetUniformLocation(program, "textureThresholdOneTwo"), std::get<float>(config.at("textureThresholdOneTwo")));
+    
+    glm::vec2 waterSpeed(std::get<float>(config.at("waterSpeedU")), std::get<float>(config.at("waterSpeedV")));
+    glUniform2fv(glGetUniformLocation(program, "waterSpeed"), 1, glm::value_ptr(waterSpeed));
 
 
     glActiveTexture(GL_TEXTURE0);
@@ -279,6 +283,9 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        float time = glfwGetTime();  // Czas od uruchomienia aplikacji (w sekundach)
+        glUniform1f(glGetUniformLocation(program, "time"), time);
 
         light.setUniforms(program);
 

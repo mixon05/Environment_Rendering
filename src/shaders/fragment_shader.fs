@@ -5,6 +5,7 @@ uniform sampler2D textureOne;
 uniform sampler2D textureTwo;
 uniform sampler2D waterTexture;
 uniform sampler2D waterTextureNormal;
+uniform float waterTextureNormalFactor;
 
 in vec2 TexCoords;
 in vec3 FragPos;
@@ -18,10 +19,11 @@ uniform vec3 viewPos;
 
 uniform float textureThresholdZeroOne;
 uniform float textureThresholdOneTwo;
+uniform float time;  // Czas, który upłynął od ostatniej klatki
+uniform vec2 waterSpeed;  // Prędkość ruchu wody w kierunkach x i y (np. [0.1, 0.1])
 
 void main()
 {
-
     // Właściwości materiału
     vec3 objectColor = vec3(0.7, 0.0, 0.0);
     float ambientStrength = 0.1;
@@ -38,10 +40,9 @@ void main()
         norm = normalize(Normal);
     }
     else {
-        vec3 waterNormal = texture(waterTextureNormal, TexCoords).xyz;
+        vec3 waterNormal = texture(waterTextureNormal, TexCoords + time * waterSpeed).xyz;
         waterNormal = waterNormal * 2.0 - 1.0; // Zmiana zakresu na -1 do 1
-        norm = normalize(Normal + waterNormal * 1.0); // 0.1 to współczynnik intensywności wpływu mapy normalnych wody
-
+        norm = normalize(Normal + waterNormal * waterTextureNormalFactor);
     }
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
@@ -77,7 +78,7 @@ void main()
         }
     }
     else {
-        textureColor = texture(waterTexture, TexCoords);
+        textureColor = texture(waterTexture, TexCoords + time * waterSpeed);
     }
     // Final result
     vec3 result = (ambient + (diffuse + specular) * attenuation * lightIntensity) * textureColor.rgb;
