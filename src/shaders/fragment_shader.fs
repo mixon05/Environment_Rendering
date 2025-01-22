@@ -42,12 +42,12 @@ void main()
 
     float height = FragPos.y;
 
-    vec4 grassColor = texture(grassTexture, TexCoords);
-    vec4 rockColor = texture(rockTexture, TexCoords);
+    vec4 textureZeroColor = texture(textureZero, TexCoords);
+    vec4 textureOneColor = texture(textureOne, TexCoords);
 
     float blendFactor = smoothstep(10.0, 15.0, height);
 
-    vec4 textureColor = mix(grassColor, rockColor, blendFactor);
+    vec4 textureColor = mix(textureZeroColor, textureOneColor, blendFactor);
 
     // Final result
     vec3 result = (ambient + (diffuse + specular) * attenuation * lightIntensity) * textureColor.rgb;

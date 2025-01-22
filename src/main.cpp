@@ -216,8 +216,8 @@ int main()
     unsigned int textureOne = loadTexture("../" + std::get<std::string>(config.at("textureOnePath")));
 
     glUseProgram(program);
-    glUniform1i(glGetUniformLocation(program, "grassTexture"), 0);
-    glUniform1i(glGetUniformLocation(program, "rockTexture"), 1);
+    glUniform1i(glGetUniformLocation(program, "textureZero"), 0);
+    glUniform1i(glGetUniformLocation(program, "textureOne"), 1);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureZero);
