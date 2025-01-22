@@ -220,12 +220,14 @@ int main()
     unsigned int textureOne = loadTexture("../" + std::get<std::string>(config.at("textureOnePath")));
     unsigned int textureTwo = loadTexture("../" + std::get<std::string>(config.at("textureTwoPath")));
     unsigned int waterTexture = loadTexture("../" + std::get<std::string>(config.at("waterTexturePath")));
+    unsigned int waterTextureNormal = loadTexture("../" + std::get<std::string>(config.at("waterTextureNormalPath")));
 
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "textureZero"), 0);
     glUniform1i(glGetUniformLocation(program, "textureOne"), 1);
     glUniform1i(glGetUniformLocation(program, "textureTwo"), 2);
     glUniform1i(glGetUniformLocation(program, "waterTexture"), 3);
+    glUniform1i(glGetUniformLocation(program, "waterTextureNormal"), 4);
 
     glUniform1f(glGetUniformLocation(program, "textureThresholdZeroOne"), std::get<float>(config.at("textureThresholdZeroOne")));
     glUniform1f(glGetUniformLocation(program, "textureThresholdOneTwo"), std::get<float>(config.at("textureThresholdOneTwo")));
@@ -242,6 +244,9 @@ int main()
 
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, waterTexture);
+
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, waterTextureNormal);
 
     // Włączamy Z-buffer
     glEnable(GL_DEPTH_TEST);

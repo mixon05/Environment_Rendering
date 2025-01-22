@@ -4,6 +4,7 @@ uniform sampler2D textureZero;
 uniform sampler2D textureOne;
 uniform sampler2D textureTwo;
 uniform sampler2D waterTexture;
+uniform sampler2D waterTextureNormal;
 
 in vec2 TexCoords;
 in vec3 FragPos;
@@ -31,7 +32,17 @@ void main()
     vec3 ambient = ambientStrength * lightColor;
 
     // Diffuse
-    vec3 norm = normalize(Normal);
+    vec3 norm;
+
+    if (IsWater < 0.5) {
+        norm = normalize(Normal);
+    }
+    else {
+        vec3 waterNormal = texture(waterTextureNormal, TexCoords).xyz;
+        waterNormal = waterNormal * 2.0 - 1.0; // Zmiana zakresu na -1 do 1
+        norm = normalize(Normal + waterNormal * 1.0); // 0.1 to współczynnik intensywności wpływu mapy normalnych wody
+
+    }
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
@@ -51,7 +62,6 @@ void main()
     vec4 textureZeroColor = texture(textureZero, TexCoords);
     vec4 textureOneColor = texture(textureOne, TexCoords);
     vec4 textureTwoColor = texture(textureTwo, TexCoords);
-    vec4 waterTextureColor = texture(waterTexture, TexCoords);
 
     float blendFactor;
 
@@ -67,7 +77,7 @@ void main()
         }
     }
     else {
-        textureColor = waterTextureColor;
+        textureColor = texture(waterTexture, TexCoords);
     }
     // Final result
     vec3 result = (ambient + (diffuse + specular) * attenuation * lightIntensity) * textureColor.rgb;

@@ -15,8 +15,8 @@
 
     "sightRange": 300.0,
 
-    "lightYCoord": 40.0,
-    "lightIntensity": 100.0,
+    "lightYCoord": 60.0,
+    "lightIntensity": 150.0,
 
     "textureZeroPath": "grass_texture.jpg",
     "textureOnePath": "rock_texture.jpg",
@@ -26,6 +26,7 @@
     "textureThresholdOneTwo": 15.0,
 
     "waterHeightLevel": 10.0,
-    "waterTexturePath": "water_texture.jpg"
+    "waterTexturePath": "water_texture.jpg",
+    "waterTextureNormalPath": "water_texture_normal.jpg"
 
 }
