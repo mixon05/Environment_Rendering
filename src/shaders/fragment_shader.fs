@@ -1,7 +1,7 @@
 #version 330 core
 out vec4 FragColor;
-uniform sampler2D grassTexture;
-uniform sampler2D rockTexture;
+uniform sampler2D textureZero;
+uniform sampler2D textureOne;
 
 in vec2 TexCoords;
 in vec3 FragPos;
