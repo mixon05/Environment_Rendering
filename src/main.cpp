@@ -257,16 +257,31 @@ int main()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    glm::vec3 cameraStartPosition = glm::vec3(std::get<float>(config.at("cameraStartPositionX")),
+                                              std::get<float>(config.at("cameraStartPositionY")),
+                                              std::get<float>(config.at("cameraStartPositionZ"))
+                                             );
+    glm::vec3 cameraStartDirection = glm::vec3(std::get<float>(config.at("cameraStartDirectionX")),
+                                              std::get<float>(config.at("cameraStartDirectionY")),
+                                              std::get<float>(config.at("cameraStartDirectionZ"))
+                                             );
+    cameraStartDirection = glm::normalize(cameraStartDirection);
+
+
     Control controller(std::get<float>(config.at("minMotionSpeed")), std::get<float>(config.at("maxMotionSpeed")),
                        std::get<float>(config.at("acceleration")), std::get<float>(config.at("angleSpeed")),
-                       std::get<float>(config.at("phiEps")));
+                       std::get<float>(config.at("phiEps")), cameraStartPosition, cameraStartDirection);
 
     // Główna pętla renderowania
     while (!glfwWindowShouldClose(window))
     {
         controller.processInput(window);
         // render
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+        glClearColor(
+            std::get<float>(config.at("backgroundRed")),
+            std::get<float>(config.at("backgroundGreen")),
+            std::get<float>(config.at("backgroundBlue")),
+            1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // create transformations
@@ -275,6 +290,8 @@ int main()
         glm::mat4 view =
             glm::lookAt(controller.getCameraPosition(),
                         controller.getCameraPosition() + controller.getCameraDirection(), controller.getCameraUp());
+        
+        //std::cout << controller.getCameraDirection().x << " " << controller.getCameraDirection().y << " " <<controller.getCameraDirection().z <<"\n";
 
         projection = glm::perspective(glm::radians(45.0f), ((float)SCR_WIDTH / (float)SCR_HEIGHT), 0.1f,
                                       std::get<float>(config.at("sightRange")));

@@ -3,7 +3,7 @@
     "SRC_HEIGHT": 1080,
 
     "bitmapPath": "map.bmp",
-    "yScale": 20.0,
+    "yScale": 50.0,
     "xStride": 0.5,
     "zStride": 0.5,
 
@@ -15,20 +15,32 @@
 
     "sightRange": 300.0,
 
-    "lightYCoord": 60.0,
+    "lightYCoord": 80.0,
     "lightIntensity": 150.0,
 
     "textureZeroPath": "grass_texture.jpg",
     "textureOnePath": "rock_texture.jpg",
     "textureTwoPath": "snow_texture.jpg",
 
-    "textureThresholdZeroOne": 5.0,
-    "textureThresholdOneTwo": 15.0,
+    "textureThresholdZeroOne": 25.0,
+    "textureThresholdOneTwo": 40.0,
 
-    "waterHeightLevel": 10.0,
+    "waterHeightLevel": 25.0,
     "waterTexturePath": "water_texture.jpg",
     "waterTextureNormalPath": "water_texture_normal.jpg",
     "waterTextureNormalFactor": 2.0,
     "waterSpeedU": 0.0,
-    "waterSpeedV": -0.05
+    "waterSpeedV": -0.05,
+
+    "backgroundRed": 0.2,
+    "backgroundGreen": 0.2,
+    "backgroundBlue": 0.6,
+
+    "cameraStartPositionX": 0.0,
+    "cameraStartPositionY": 100.0,
+    "cameraStartPositionZ": 0.0,
+  
+    "cameraStartDirectionX":  0.675406,
+    "cameraStartDirectionY": -0.453049,
+    "cameraStartDirectionZ":  0.581871
 }

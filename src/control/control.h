@@ -7,7 +7,13 @@
 class Control
 {
    public:
-    Control(float minMotionSpeed, float maxMotionSpeed, float acceleration, float angleSpeed, float phiEps);
+    Control(float minMotionSpeed,
+            float maxMotionSpeed,
+            float acceleration,
+            float angleSpeed,
+            float phiEps,
+            glm::vec3 cameraStartPosition,
+            glm::vec3 cameraStartDirection);
 
     const glm::vec3& getCameraPosition() const;
     const glm::vec3& getCameraDirection() const;

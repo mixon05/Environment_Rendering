@@ -6,12 +6,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Control::Control(float minMotionSpeed, float maxMotionSpeed, float acceleration, float angleSpeed, float phiEps)
+Control::Control(float minMotionSpeed, float maxMotionSpeed, float acceleration,
+                float angleSpeed, float phiEps,
+                glm::vec3 cameraStartPosition, glm::vec3 cameraStartDirection)
     : minMotionSpeed(minMotionSpeed),
       maxMotionSpeed(maxMotionSpeed),
       acceleration(acceleration),
       angleSpeed(angleSpeed),
-      phiEps(phiEps)
+      phiEps(phiEps),
+      cameraPosition(cameraStartPosition),
+      cameraDirection(cameraStartDirection)
 {
     xSpeed = minMotionSpeed;
     ySpeed = minMotionSpeed;
@@ -24,8 +28,6 @@ Control::Control(float minMotionSpeed, float maxMotionSpeed, float acceleration,
         pressedKeys[i] = false;
     }
 
-    cameraPosition = glm::vec3(0, 0, 20);
-    cameraDirection = glm::vec3(0, 0, -1);
     cameraUp = glm::vec3(0, 1, 0);
 }
 
