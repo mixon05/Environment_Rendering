@@ -14,14 +14,15 @@ struct Vertex
 class EnvMap
 {
    public:
-    EnvMap(std::string filepath, float yScale, float xStride, float zStride);
+    EnvMap(std::string filepath, float yScale, float xStride, float zStride, float waterHeightLevel);
     ~EnvMap();
 
     int xSize;
     int zSize;
+    float yScale;
     float xStride;
     float zStride;
-    float yScale;
+    float waterHeightLevel;
 
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;

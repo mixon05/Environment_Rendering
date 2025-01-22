@@ -5,8 +5,8 @@
 
 #include "stb_image.h"
 
-EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
-    : yScale(yScale), xStride(xStride), zStride(zStride)
+EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride, float waterHeightLevel)
+    : yScale(yScale), xStride(xStride), zStride(zStride), waterHeightLevel(waterHeightLevel)
 {
     // Wczytanie obrazu heightmapy
     int width, height, channels;
@@ -21,7 +21,7 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
     zSize = height;
 
     // Tworzenie wierzchołków
-    vertices.resize(xSize * zSize);
+    vertices.resize(xSize * zSize + 4);
 
     // Generowanie pozycji wierzchołków
     for (int z = 0; z < zSize; z++)
@@ -39,7 +39,23 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
         }
     }
 
+    // Wierzchołki wody
+
+    vertices[xSize * zSize].position = glm::vec3(0.0f, waterHeightLevel, 0.0f);
+    vertices[xSize * zSize].texCoords = glm::vec2(0.0f, 0.0f);
+
+    vertices[xSize * zSize + 1].position = glm::vec3((xSize-1) * xStride, waterHeightLevel, 0.0f);
+    vertices[xSize * zSize + 1].texCoords = glm::vec2(1.0f, 0.0f);
+
+    vertices[xSize * zSize+ 2].position = glm::vec3(0.0f, waterHeightLevel, (zSize - 1) * zStride);
+    vertices[xSize * zSize+ 2].texCoords = glm::vec2(0.0f, 1.0f);
+
+    vertices[xSize * zSize + 3].position = glm::vec3((xSize-1) * xStride, waterHeightLevel, (zSize - 1) * zStride);
+    vertices[xSize * zSize + 3].texCoords = glm::vec2(1.0f, 1.0f);
+
     // Generowanie indeksów
+    indices.reserve(6*xSize*zSize + 6);
+
     for (int z = 0; z < zSize - 1; z++)
     {
         for (int x = 0; x < xSize - 1; x++)
@@ -58,6 +74,16 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride)
             indices.push_back(bottomRight);
         }
     }
+    // Indeksy wody
+
+    indices.push_back(xSize * zSize);
+    indices.push_back(xSize * zSize + 2);
+    indices.push_back(xSize * zSize + 1);
+
+    indices.push_back(xSize * zSize + 1);
+    indices.push_back(xSize * zSize + 2);
+    indices.push_back(xSize * zSize + 3);
+
 
     // Obliczanie normalnych
     calculateNormals();

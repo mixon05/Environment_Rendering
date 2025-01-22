@@ -138,7 +138,8 @@ int main()
     glEnable(GL_CULL_FACE);
 
     EnvMap envMap("../" + std::get<std::string>(config.at("bitmapPath")), std::get<float>(config.at("yScale")),
-                  std::get<float>(config.at("xStride")), std::get<float>(config.at("zStride")));
+                  std::get<float>(config.at("xStride")), std::get<float>(config.at("zStride")),
+                  std::get<float>(config.at("waterHeightLevel")));
 
     // Załaduj shadery
     std::string vertexShaderSourceStr = loadShaderSource("../src/shaders/vertex_shader.vs");
