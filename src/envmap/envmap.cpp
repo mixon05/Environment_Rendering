@@ -128,4 +128,10 @@ void EnvMap::calculateNormals()
             vertices[z * xSize + x].normal = calculateNormalAt(x, z);
         }
     }
+
+    vertices[xSize * zSize].normal = glm::normalize(glm::vec3(0, 1.0, 0));
+    vertices[xSize * zSize + 1].normal = glm::normalize(glm::vec3(0, 1.0, 0));
+    vertices[xSize * zSize + 2].normal = glm::normalize(glm::vec3(0, 1.0, 0));
+    vertices[xSize * zSize + 3].normal = glm::normalize(glm::vec3(0, 1.0, 0));
+
 }
