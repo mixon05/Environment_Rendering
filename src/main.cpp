@@ -181,8 +181,8 @@ int main()
     glLinkProgram(program);
     glUseProgram(program);
 
-    Light light(glm::vec3(envMap.xSize * envMap.xStride / 2.0f, 40.0f, envMap.zSize * envMap.zStride / 2.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f), 100.0f);
+    Light light(glm::vec3(envMap.xSize * envMap.xStride / 2.0f, std::get<float>(config.at("lightYCoord")), envMap.zSize * envMap.zStride / 2.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f), std::get<float>(config.at("lightIntensity")));
 
     GLuint viewPosLoc = glGetUniformLocation(program, "viewPos");
 
@@ -214,16 +214,25 @@ int main()
 
     unsigned int textureZero = loadTexture("../" + std::get<std::string>(config.at("textureZeroPath")));
     unsigned int textureOne = loadTexture("../" + std::get<std::string>(config.at("textureOnePath")));
+    unsigned int textureTwo = loadTexture("../" + std::get<std::string>(config.at("textureTwoPath")));
 
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "textureZero"), 0);
     glUniform1i(glGetUniformLocation(program, "textureOne"), 1);
+    glUniform1i(glGetUniformLocation(program, "textureTwo"), 2);
+
+    glUniform1f(glGetUniformLocation(program, "textureThresholdZeroOne"), std::get<float>(config.at("textureThresholdZeroOne")));
+    glUniform1f(glGetUniformLocation(program, "textureThresholdOneTwo"), std::get<float>(config.at("textureThresholdOneTwo")));
+
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureZero);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, textureOne);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, textureTwo);
 
 
     // Włączamy Z-buffer

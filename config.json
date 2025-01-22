@@ -15,7 +15,15 @@
 
     "sightRange": 300.0,
 
-    "textureZeroPath": "rock_texture.jpg",
-    "textureOnePath": "grass_texture.jpg"
+    "lightYCoord": 40.0,
+    "lightIntensity": 100.0,
+
+    "textureZeroPath": "grass_texture.jpg",
+    "textureOnePath": "rock_texture.jpg",
+    "textureTwoPath": "snow_texture.jpg",
+
+    "textureThresholdZeroOne": 5.0,
+    "textureThresholdOneTwo": 15.0
+
 
 }

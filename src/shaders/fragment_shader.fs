@@ -2,6 +2,7 @@
 out vec4 FragColor;
 uniform sampler2D textureZero;
 uniform sampler2D textureOne;
+uniform sampler2D textureTwo;
 
 in vec2 TexCoords;
 in vec3 FragPos;
@@ -11,6 +12,9 @@ uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform float lightIntensity;
 uniform vec3 viewPos;
+
+uniform float textureThresholdZeroOne;
+uniform float textureThresholdOneTwo;
 
 void main()
 {
@@ -44,10 +48,21 @@ void main()
 
     vec4 textureZeroColor = texture(textureZero, TexCoords);
     vec4 textureOneColor = texture(textureOne, TexCoords);
+    vec4 textureTwoColor = texture(textureTwo, TexCoords);
 
-    float blendFactor = smoothstep(10.0, 15.0, height);
+    float blendFactor;
 
-    vec4 textureColor = mix(textureZeroColor, textureOneColor, blendFactor);
+    //vec4 textureColor = mix(textureZeroColor, textureTwoColor, blendFactor);
+    vec4 textureColor;
+    float textureThresholdInHalf = (textureThresholdZeroOne + textureThresholdOneTwo) / 2.0;
+
+    if (height < textureThresholdInHalf) {
+        blendFactor = smoothstep(textureThresholdZeroOne, textureThresholdInHalf, height);
+        textureColor = mix(textureZeroColor, textureOneColor, blendFactor);
+    } else {
+        blendFactor = smoothstep(textureThresholdInHalf, textureThresholdOneTwo, height);
+        textureColor = mix(textureOneColor, textureTwoColor, blendFactor);
+    }
 
     // Final result
     vec3 result = (ambient + (diffuse + specular) * attenuation * lightIntensity) * textureColor.rgb;
