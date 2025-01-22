@@ -29,9 +29,3 @@ $ ./gkom_environment_rendering
 ## Windows
 
 Trzeba sprawdzić czy działa.
-
-## TODO
-
-woda - góry otoczone jeziorem - poziom wody w pliku konfiguracyjnym
-(można użyc normal mapy)
-(czas uniform - zmiana wsp tekstury)
