@@ -13,5 +13,9 @@
     "angleSpeed": 0.6,
     "phiEps": 0.001,
 
-    "sightRange": 300.0
+    "sightRange": 300.0,
+
+    "textureZeroPath": "rock_texture.jpg",
+    "textureOnePath": "grass_texture.jpg"
+
 }

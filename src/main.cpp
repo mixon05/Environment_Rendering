@@ -79,12 +79,12 @@ std::string loadShaderSource(const std::string &filePath)
     return buffer.str();
 }
 
-unsigned int loadTexture(const char *path) {
+unsigned int loadTexture(std::string path) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
     if (data) {
         GLenum format;
         if (nrComponents == 1)
@@ -212,18 +212,18 @@ int main()
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
-    unsigned int grassTexture = loadTexture("grass_texture.jpg");
-    unsigned int rockTexture = loadTexture("rock_texture.jpg");
+    unsigned int textureZero = loadTexture("../" + std::get<std::string>(config.at("textureZeroPath")));
+    unsigned int textureOne = loadTexture("../" + std::get<std::string>(config.at("textureOnePath")));
 
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "grassTexture"), 0);
     glUniform1i(glGetUniformLocation(program, "rockTexture"), 1);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, grassTexture);
+    glBindTexture(GL_TEXTURE_2D, textureZero);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, rockTexture);
+    glBindTexture(GL_TEXTURE_2D, textureOne);
 
 
     // Włączamy Z-buffer
