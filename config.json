@@ -25,6 +25,7 @@
     "textureThresholdZeroOne": 5.0,
     "textureThresholdOneTwo": 15.0,
 
-    "waterHeightLevel": 10.0
+    "waterHeightLevel": 10.0,
+    "waterTexturePath": "water_texture.jpg"
 
 }

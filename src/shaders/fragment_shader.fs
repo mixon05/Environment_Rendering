@@ -3,10 +3,12 @@ out vec4 FragColor;
 uniform sampler2D textureZero;
 uniform sampler2D textureOne;
 uniform sampler2D textureTwo;
+uniform sampler2D waterTexture;
 
 in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
+in float IsWater;
 
 uniform vec3 lightPos;
 uniform vec3 lightColor;
@@ -49,21 +51,24 @@ void main()
     vec4 textureZeroColor = texture(textureZero, TexCoords);
     vec4 textureOneColor = texture(textureOne, TexCoords);
     vec4 textureTwoColor = texture(textureTwo, TexCoords);
+    vec4 waterTextureColor = texture(waterTexture, TexCoords);
 
     float blendFactor;
 
-    //vec4 textureColor = mix(textureZeroColor, textureTwoColor, blendFactor);
     vec4 textureColor;
-    float textureThresholdInHalf = (textureThresholdZeroOne + textureThresholdOneTwo) / 2.0;
-
-    if (height < textureThresholdInHalf) {
-        blendFactor = smoothstep(textureThresholdZeroOne, textureThresholdInHalf, height);
-        textureColor = mix(textureZeroColor, textureOneColor, blendFactor);
-    } else {
-        blendFactor = smoothstep(textureThresholdInHalf, textureThresholdOneTwo, height);
-        textureColor = mix(textureOneColor, textureTwoColor, blendFactor);
+    if (IsWater < 0.5) {
+        float textureThresholdInHalf = (textureThresholdZeroOne + textureThresholdOneTwo) / 2.0;
+        if (height < textureThresholdInHalf) {
+            blendFactor = smoothstep(textureThresholdZeroOne, textureThresholdInHalf, height);
+            textureColor = mix(textureZeroColor, textureOneColor, blendFactor);
+        } else {
+            blendFactor = smoothstep(textureThresholdInHalf, textureThresholdOneTwo, height);
+            textureColor = mix(textureOneColor, textureTwoColor, blendFactor);
+        }
     }
-
+    else {
+        textureColor = waterTextureColor;
+    }
     // Final result
     vec3 result = (ambient + (diffuse + specular) * attenuation * lightIntensity) * textureColor.rgb;
     FragColor = vec4(result, 1.0);

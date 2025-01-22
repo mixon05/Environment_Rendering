@@ -33,9 +33,10 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride,
 
             vertices[index].position = glm::vec3(x * xStride, height, z * zStride);
             vertices[index].texCoords = glm::vec2(
-            static_cast<float>(x) / (xSize - 1),
-            static_cast<float>(z) / (zSize - 1)
-        );
+                static_cast<float>(x) / (xSize - 1),
+                static_cast<float>(z) / (zSize - 1)
+            );
+            vertices[index].isWater = 0.0f;
         }
     }
 
@@ -43,15 +44,19 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride,
 
     vertices[xSize * zSize].position = glm::vec3(0.0f, waterHeightLevel, 0.0f);
     vertices[xSize * zSize].texCoords = glm::vec2(0.0f, 0.0f);
+    vertices[xSize * zSize].isWater = 1.0f;
 
     vertices[xSize * zSize + 1].position = glm::vec3((xSize-1) * xStride, waterHeightLevel, 0.0f);
     vertices[xSize * zSize + 1].texCoords = glm::vec2(1.0f, 0.0f);
+    vertices[xSize * zSize + 1].isWater = 1.0f;
 
-    vertices[xSize * zSize+ 2].position = glm::vec3(0.0f, waterHeightLevel, (zSize - 1) * zStride);
-    vertices[xSize * zSize+ 2].texCoords = glm::vec2(0.0f, 1.0f);
+    vertices[xSize * zSize + 2].position = glm::vec3(0.0f, waterHeightLevel, (zSize - 1) * zStride);
+    vertices[xSize * zSize + 2].texCoords = glm::vec2(0.0f, 1.0f);
+    vertices[xSize * zSize + 2].isWater = 1.0f;
 
     vertices[xSize * zSize + 3].position = glm::vec3((xSize-1) * xStride, waterHeightLevel, (zSize - 1) * zStride);
     vertices[xSize * zSize + 3].texCoords = glm::vec2(1.0f, 1.0f);
+    vertices[xSize * zSize + 3].isWater = 1.0f;
 
     // Generowanie indeksów
     indices.reserve(6*xSize*zSize + 6);
@@ -91,7 +96,9 @@ EnvMap::EnvMap(std::string filepath, float yScale, float xStride, float zStride,
     stbi_image_free(data);
 }
 
-EnvMap::~EnvMap() {}
+EnvMap::~EnvMap() {
+
+}
 
 float EnvMap::getHeightAt(int x, int z)
 {

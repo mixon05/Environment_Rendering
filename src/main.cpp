@@ -209,18 +209,23 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, isWater));
+
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
 
     unsigned int textureZero = loadTexture("../" + std::get<std::string>(config.at("textureZeroPath")));
     unsigned int textureOne = loadTexture("../" + std::get<std::string>(config.at("textureOnePath")));
     unsigned int textureTwo = loadTexture("../" + std::get<std::string>(config.at("textureTwoPath")));
+    unsigned int waterTexture = loadTexture("../" + std::get<std::string>(config.at("waterTexturePath")));
 
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "textureZero"), 0);
     glUniform1i(glGetUniformLocation(program, "textureOne"), 1);
     glUniform1i(glGetUniformLocation(program, "textureTwo"), 2);
+    glUniform1i(glGetUniformLocation(program, "waterTexture"), 3);
 
     glUniform1f(glGetUniformLocation(program, "textureThresholdZeroOne"), std::get<float>(config.at("textureThresholdZeroOne")));
     glUniform1f(glGetUniformLocation(program, "textureThresholdOneTwo"), std::get<float>(config.at("textureThresholdOneTwo")));
@@ -235,6 +240,8 @@ int main()
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, textureTwo);
 
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, waterTexture);
 
     // Włączamy Z-buffer
     glEnable(GL_DEPTH_TEST);
