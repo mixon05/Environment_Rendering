@@ -1,10 +1,5 @@
 # GKOM_Environment_Rendering
 
-## Uwagi
-
-1. Używać float zamiast double
-2. Fajna książka: https://learnopengl.com/
-
 # Ruch
 
 W/S - przód/tył
@@ -19,13 +14,4 @@ Instalacja GLM (wymagane do poprawnego funkcjonowania projektu)
 $ sudo apt update
 $ sudo apt install libglm-dev
 
-$ cd gkom_environment_rendering
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
-$ ./gkom_environment_rendering
-
-## Windows
-
-Trzeba sprawdzić czy działa.
+$ run /build.sh
